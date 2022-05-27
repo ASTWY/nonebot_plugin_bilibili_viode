@@ -10,7 +10,7 @@ repository = "https://github.com/astwy/nonebot_plugin_bilibili_viode"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-httpx = "^0.23.0"
+httpx = "^0.22.0"
 Pillow = "^9.1.1"
 nonebot-plugin-guild-patch = "^0.1.3"
 
