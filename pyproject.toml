@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "nonebot_plugin_bilibili_viode"
+version = "0.1.0"
+description = "一个nonebot2插件，用于获取哔哩哔哩伪分享卡片"
+authors = ["ASTWY <astwy@outlook.com>"]
+license = "MIT"
+readme = "README.markdown"
+homepage = "https://pypi.org/project/nonebot_plugin_bilibili_viode/"
+repository = "https://github.com/astwy/nonebot_plugin_bilibili_viode"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+httpx = "^0.23.0"
+Pillow = "^9.1.1"
+nonebot-plugin-guild-patch = "^0.1.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
