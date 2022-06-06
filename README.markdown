@@ -4,7 +4,7 @@ nonebot_plugin_bilibili_viode是一个Nonebot2的插件，其功能为将用户�
 
 ## 如何安装使用
 ### 安装
-`pip insall nonebot_plugin_bilibili_viode`  
+`pip install nonebot_plugin_bilibili_viode`  
 或者  
 `poetry add nonebot_plugin_bilibili_viode`  
 ### 使用
