@@ -1,5 +1,7 @@
 from httpx import AsyncClient
+
 from .model import *
+
 
 # BV号转AV号
 async def bv_to_av(bv_id: str) -> str:
@@ -49,20 +51,31 @@ async def get_video_info(av_id: str):
         if resp.status_code == 200:
             data = resp.json()
             if data["code"] == 0:
-                up_info = UpInfo(
-                    uid=data["data"]["owner"]["mid"],
-                    name=data["data"]["owner"]["name"],
-                    iconUrl=data["data"]["owner"]["face"],
+                resp = await client.get(
+                    "http://api.bilibili.com/x/web-interface/card?mid="
+                    + str(data["data"]["owner"]["mid"])
                 )
+                if resp.status_code == 200:
+                    upInfo = resp.json()["data"]["card"]
                 return VideoInfo(
                     title=data["data"]["title"],
                     pictureUrl=data["data"]["pic"],
                     desc=data["data"]["desc"],
                     pubdate=data["data"]["pubdate"],
-                    upInfo=up_info,
+                    upInfo=upInfo,
+                    stat=data["data"]["stat"],
                     shareUrl=shareUrl
                     if shareUrl
                     else "http://www.bilibili.com/video/av" + av_id,
                 )
     return None
 
+
+# 格式化数值
+def format_number(number: int) -> str:
+    if number >= 100000000:
+        return str(round(number / 100000000, 1)) + "亿"
+    elif number >= 10000:
+        return str(round(number / 10000, 1)) + "万"
+    else:
+        return str(number)

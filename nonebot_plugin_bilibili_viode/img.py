@@ -1,10 +1,13 @@
+import time
 from io import BytesIO
+from pathlib import Path
 
+import qrcode
 from httpx import AsyncClient
 from PIL import Image, ImageDraw, ImageFont
 
 from .model import VideoInfo
-import time
+from .utils import format_number, get_video_info
 
 
 def circle_corner(img, radii):  # 把原图片变成圆角，
@@ -37,8 +40,20 @@ def circle_corner(img, radii):  # 把原图片变成圆角，
     img.putalpha(alpha)  # 白色区域透明可见，黑色区域不可见
     return img
 
+    # 创建二维码
+    qrcode = Image.new("RGB", (300, 300), (255, 255, 255))
+    # 创建二维码的Draw对象
+    draw = ImageDraw.Draw(qrcode)
+
 
 async def build_get_share_info(video_info: VideoInfo) -> bytes:
+    """
+    构建获取分享链接的图片
+    :param video_id: 视频id
+    :return: 图片
+    """
+    if not video_info:
+        return None
     # 图片尺寸 1750 x 1500
     img_width = 1750
     img_height = 1500
@@ -47,7 +62,7 @@ async def build_get_share_info(video_info: VideoInfo) -> bytes:
     # 绘制UP主信息
     # UP头像贴到左上角
     async with AsyncClient() as client:
-        resp = await client.get(video_info.upInfo.iconUrl)
+        resp = await client.get(video_info.upInfo.face)
         img_up_icon = Image.open(BytesIO(resp.content))
         img_up_icon = img_up_icon.resize((150, 150))
         img.paste(img_up_icon, (25, 25))
@@ -143,3 +158,107 @@ async def build_get_share_info(video_info: VideoInfo) -> bytes:
     img.save(img_bytes, "png")
     return img_bytes.getvalue()
 
+
+async def build_video_poster(video_info: VideoInfo):
+    """
+    生成视频海报
+    :param video_id: 视频id
+    :return: 视频海报
+    """
+    if video_info is None:
+        return None
+    res_path = Path(__file__).parent.joinpath("resource")
+    base_img = Image.open(res_path / "image/template.png")
+    # 封面图片
+    async with AsyncClient(verify=False) as client:
+        resp = await client.get(video_info.pic)
+        if resp.status_code == 200:
+            picture = Image.open(BytesIO(resp.content))
+            # 将图片缩放到宽度为725，高度自适应
+            picture = picture.resize((722, 410), Image.ANTIALIAS)
+            picture = circle_corner(picture, 10)
+            # 将图片绘制到base图片上
+            base_img.paste(picture, (120, 205), picture)
+    # UP头像
+    async with AsyncClient(verify=False) as client:
+        resp = await client.get(video_info.upInfo.face)
+        if resp.status_code == 200:
+            picture = Image.open(BytesIO(resp.content))
+            # 将图片缩放到宽度为100，高度自适应
+            picture = picture.resize((100, 100), Image.ANTIALIAS)
+            picture = circle_corner(picture, 50)
+            # 将图片绘制到base图片上
+            base_img.paste(picture, (70, 1055), picture)
+    # 二维码
+    qr = qrcode.QRCode(
+        version=3,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=50,
+        border=4,
+    )
+    qr.add_data(video_info.shareUrl)
+    qr.make()
+    picture = qr.make_image(fill_color="black", back_color="white")
+    picture = picture.resize((150, 150))
+    picture = circle_corner(picture, 20)
+    base_img.paste(picture, (745, 1038), picture)
+
+    draw = ImageDraw.Draw(base_img)
+
+    # 视频标题
+    title = video_info.title
+    # 每行文字最大宽度为685，如果超出2行则截取
+    font = ImageFont.truetype(
+        (res_path / "font/SourceHanSansSC-Bold.otf").__str__(), 45
+    )
+    # 如果视频标题超出1行
+    if font.getsize(title)[0] > 685:
+        # 计算标题字符的超出位数
+        sum = 0
+        for i in range(len(title)):
+            sum += font.getsize(title[i])[0]
+            if sum > 685:
+                title = title[:i] + "\n" + title[i:]
+                break
+    # 如果视频标题超出2行
+    if font.getsize(title)[0] > 685 * 2:
+        # 计算标题字符的超出位数
+        sum = font.getsize("···")[0]
+        for i in range(len(title)):
+            sum += font.getsize(title[i])[0]
+            if sum > 685 * 2:
+                # 将标题字符超出的部分删除
+                title = title[:i] + "···"
+                break
+
+    # 将标题绘制到base图片上
+    draw.text((125, 703), title, (0, 0, 0), font=font)
+    # 视频信息
+    tmp = f"{format_number(video_info.stat.view)}播放· {format_number(video_info.stat.like)}点赞 · {format_number(video_info.stat.danmaku)}弹幕"
+    font = ImageFont.truetype(
+        (res_path / "font/SourceHanSansSC-Normal.otf").__str__(), 35
+    )
+    draw.text((125, 835), tmp, "#878789", font=font)
+    # 视频发布时间
+    tmp = "发布于：" + time.strftime("%Y-%m-%d %H:%M", time.localtime(video_info.pubdate))
+    font = ImageFont.truetype(
+        (res_path / "font/SourceHanSansSC-Light.otf").__str__(), 35
+    )
+    draw.text((133, 910), tmp, "#a9a9a9", font=font)
+    # UP主信息
+    tmp = video_info.upInfo.name
+    font = ImageFont.truetype(
+        (res_path / "font/SourceHanSansSC-Bold.otf").__str__(), 35
+    )
+    draw.text((195, 1070), tmp, "#575757", font=font)
+    # UP主粉丝数
+    tmp = f"{format_number(video_info.upInfo.fans)}粉丝"
+    font = ImageFont.truetype(
+        (res_path / "font/SourceHanSansSC-Normal.otf").__str__(), 30
+    )
+    draw.text((195, 1120), tmp, "#828385", font=font)
+
+    base_img = base_img.convert("RGB")
+    img_bytes = BytesIO()
+    base_img.save(img_bytes, "png")
+    return img_bytes.getvalue()

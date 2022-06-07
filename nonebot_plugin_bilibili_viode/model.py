@@ -1,9 +1,12 @@
 # UP主信息类
-class UpInfo:
-    def __init__(self, uid: int, name: str, iconUrl: str):
-        self.uid = uid
-        self.name = name
-        self.iconUrl = iconUrl
+class UpInfo(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+
+class Stat(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 # 视频信息类
@@ -14,12 +17,14 @@ class VideoInfo:
         pictureUrl: str,
         desc: str,
         pubdate: int,
-        upInfo: UpInfo,
+        upInfo: dict,
+        stat: dict,
         shareUrl: str,
     ) -> None:
         self.title = title
         self.pic = pictureUrl
         self.desc = desc
         self.pubdate = pubdate
-        self.upInfo = upInfo
+        self.upInfo = UpInfo(**upInfo)
         self.shareUrl = shareUrl
+        self.stat = Stat(**stat)
