@@ -1,5 +1,7 @@
 # nonebot_plugin_bilibili_viode
 
+[![](https://img.shields.io/badge/pypi-0.1.3-green)](https://pypi.org/project/nonebot-plugin-bilibili-viode/)
+
 nonebot_plugin_bilibili_viode 是一个 Nonebot2 的插件，其功能为将用户发送的 B 站视频 ID 转为(伪)分享卡片的形式
 
 ## [更新日志](/CHANGELOG.markdown)
