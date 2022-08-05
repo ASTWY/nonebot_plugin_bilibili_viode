@@ -13,12 +13,12 @@ share_sort_url = on_message(block=False)
 
 @share_sort_url.handle()
 async def _(event: Union[MessageEvent, GuildMessageEvent]):
-    if event.raw_message.startswith("av") and event.raw_message[2:].isdigit():
-        video_id = event.raw_message[2:]
-    elif event.raw_message.startswith("BV"):
-        video_id = await bv_to_av(event.raw_message)
-    else:
+    video_id_url = await bilibili_video_id_from_url(event.raw_message)
+    video_id = await bilibili_video_id_validate(event.raw_message)
+    if (video_id_url or video_id) is None:
         return
+    if video_id_url is not None:
+        video_id = await bilibili_video_id_validate(video_id_url)
     video_info = await get_video_info(video_id)
     if config.bilibili_poster:
         img = await build_video_poster(video_info)
