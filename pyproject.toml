@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot_plugin_bilibili_viode"
-version = "0.1.2"
+version = "0.1.3"
 description = "一个nonebot2插件，用于获取哔哩哔哩伪分享卡片"
 authors = ["ASTWY <astwy@outlook.com>"]
 license = "MIT"
