@@ -6,6 +6,8 @@ nonebot_plugin_bilibili_viode 是一个 Nonebot2 的插件，其功能为将用�
 
 ## [更新日志](/CHANGELOG.markdown)
 
+## [模板使用说明](/docs/template.markdown)
+
 ## 如何安装使用
 
 ### 安装
