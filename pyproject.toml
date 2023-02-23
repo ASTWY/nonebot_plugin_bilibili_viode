@@ -9,19 +9,17 @@ homepage = "https://pypi.org/project/nonebot_plugin_bilibili_viode/"
 repository = "https://github.com/astwy/nonebot_plugin_bilibili_viode"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 httpx = "^0.23.3"
-nonebot-plugin-guild-patch = "^0.2.2"
-qrcode = "^7.3.1"
+nonebot-plugin-guild-patch = "^0.2.3"
+qrcode = "^7.4.2"
 pillow = "^9.4.0"
-nonebot2 = "^2.0.0rc2"
-
-[tool.poetry.dev-dependencies]
-black = {version = "^22.3.0", allow-prereleases = true}
+nonebot2 = "^2.0.0rc3"
+pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
-nonebug = "^0.2.2"
-pytest-asyncio = "^0.20.3"
+yapf = "^0.32.0"
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.0.0] - 2023-02-23
+
+- <font color='red'>删除</font>了 `bilibili_poster` 配置项
+- 增加了 `bilibili_template` 配置项
+- 重写了插件，现在可以自定义模板了  
+  关于自定义模板的使用方法请参考 [模板说明](/docs/template.markdown)
+- 更新依赖
+
 ## [0.1.4b1] - 2022-8-30
 
 - 更新依赖
