@@ -139,13 +139,17 @@ def _url2QRcode(url: str) -> Image:
     return img
 
 
-def _url2Image(url: str) -> Image:
+def _url2Image(url: str, size: tuple = (0, 0)) -> Image:
     """
     将url转换为Image对象
+    :param url: url
+    :param size: 图片大小,默认为(0,0)，表示不改变图片大小
     """
     response = httpx.get(url, verify=False, timeout=None)
     if response.status_code == 200:
         img = Image.open(BytesIO(response.content))
+        if size != (0, 0):
+            img = img.resize(size)
         return img
 
 
@@ -284,7 +288,7 @@ def render_img(video_info: VideoInfo, config: str) -> Image:
         'up_name':
         video_info.owner.name,  # up主名字
         'up_face':
-        _url2Image(video_info.owner.face),  # up主头像
+        _url2Image(video_info.owner.face, (300, 300)),  # up主头像
         'up_mid':
         video_info.owner.mid,  # up主mid
         'up_follower':
