@@ -50,7 +50,7 @@ def bilibili_video_id_validate(video_id: str) -> str:
     regex = r"(av[0-9]*)|(BV1[A-Za-z0-9]{2}4[A-Za-z0-9]{1}1[A-Za-z0-9]{1}7[A-Za-z0-9]{2})"
     match = re.match(regex, video_id)
     if match:
-        return video_id
+        return match.group(0)
     return None
 
 

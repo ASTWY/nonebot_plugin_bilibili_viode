@@ -4,11 +4,12 @@ from pathlib import Path
 
 import httpx
 import qrcode
+from nonebot.log import logger
 from PIL import Image, ImageDraw, ImageFont
 
 from .models.bilibili import VideoInfo
 from .models.config import ImageItem, TextItem
-from .utils import load_config, format_number
+from .utils import format_number, load_config
 
 IMG_DIR = Path(__file__).parent / 'resource/image'
 FONT_DIR = Path(__file__).parent / 'resource/font'
@@ -32,7 +33,7 @@ def _font_wight(font: ImageFont, text: str) -> int:
     """
     计算文本的宽度
     """
-    return sum(font.getbbox(c)[0] for c in text)
+    return font.getlength(text)
 
 
 def _font_remove(
@@ -217,8 +218,7 @@ def _render_text(draw, text, config: TextItem):
         # 如果指定了最大行数
         if config.font_max_lines:
             # 如果文本的宽度大于最大宽度乘以最大行数，则先分割文本为多行
-            if _font_wight(font, text) > (config.font_max_width *
-                                          (config.font_max_lines - 1)):
+            if _font_wight(font, text) > config.font_max_width:
                 text = _text_split(text, font, config.font_max_width,
                                    config.font_max_lines)
         # 如果没有指定最大行数，则直接移除文本中的部分字符
@@ -240,10 +240,11 @@ def render_img(video_info: VideoInfo, config: str) -> Image:
 
     返回值：一个Image对象
     """
+    start_time = time.time()
 
     # 读取配置文件
     config = load_config(config)
-
+    logger.debug(f"读取配置文件耗时：{time.time()-start_time}秒")
     # 创建画布
     canvas_config = config['base']
     w = canvas_config.get('width')
@@ -263,6 +264,7 @@ def render_img(video_info: VideoInfo, config: str) -> Image:
     canvas = Image.new('RGBA', (w, h), c)
     config.pop('base')
     draw = ImageDraw.Draw(canvas)
+    logger.debug(f"创建画布耗时：{time.time()-start_time}秒")
     # 预处理 VideoInfo, 将其中的数据转换
     video_data = {
         'title':
@@ -297,7 +299,7 @@ def render_img(video_info: VideoInfo, config: str) -> Image:
         'qrcode':
         _url2QRcode(video_info.share_url),  # 二维码
     }
-
+    logger.debug(f"预处理VideoInfo耗时：{time.time()-start_time}秒")
     # 循环从配置文件读取每个配置项，并根据配置项的类型调用相应的渲染函数
     for k, v in config.items():
         if v.get('type') == 'image':
@@ -308,4 +310,5 @@ def render_img(video_info: VideoInfo, config: str) -> Image:
             _render_text(draw, video_data.get(k), c)
         else:
             raise ValueError("未知的配置项类型")
+    logger.debug(f"渲染耗时：{time.time()-start_time}秒")
     return canvas

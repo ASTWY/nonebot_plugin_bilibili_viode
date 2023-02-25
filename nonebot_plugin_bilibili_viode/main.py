@@ -2,7 +2,7 @@ from io import BytesIO
 from typing import Union
 
 from nonebot import on_message
-from nonebot.adapters.onebot.v11 import MessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot_plugin_guild_patch import GuildMessageEvent
 
 from . import config
@@ -14,7 +14,7 @@ share_sort_url = on_message(block=False)
 
 
 @share_sort_url.handle()
-async def _(event: Union[MessageEvent, GuildMessageEvent]):
+async def _(event: Union[MessageEvent, GuildMessageEvent], bot: Bot):
     video_id = bilibili_video_id_validate(event.raw_message)
     if not video_id:
         video_id = await bilibili_video_id_from_url(event.raw_message)
@@ -31,4 +31,4 @@ async def _(event: Union[MessageEvent, GuildMessageEvent]):
         msg = MessageSegment.image(
             img_bytes.getvalue()) + MessageSegment.text("\n点击前往:" +
                                                         video_info.share_url)
-        await share_sort_url.finish(msg)
+        await bot.send(event, msg)
