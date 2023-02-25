@@ -11,7 +11,7 @@ permissions:
 
 # 定义一个名为 deploy 的任务，表示用于部署 Python 包的任务。
 jobs:
-  deploy:
+  build:
     # 配置任务在最新版本的 Ubuntu 系统上运行。
     runs-on: ubuntu-latest
 
@@ -20,25 +20,8 @@ jobs:
       # 使用 actions/checkout 动作来获取仓库代码。
       - uses: actions/checkout@v3
 
-      # 使用 actions/setup-python 动作来设置 Python 环境，指定使用 Python 3.10 版本。
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      # 构建并发布 Python 包。
+      - name: Build and publish to pypi
+        uses: JRubics/poetry-publish@v1.16
         with:
-          python-version: "3.10"
-
-      # 安装 Poetry 和依赖包。
-      - name: Install dependencies
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          source $HOME/.poetry/env
-          poetry install
-
-      # 使用 Poetry 构建 Python 包。
-      - name: Build package
-        run: poetry build
-
-      # 上传 Python 包到 PyPI 仓库中。
-      - name: Publish package
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-          poetry publish --build
+          pypi_token: ${{ secrets.PYPI_TOKEN }}
