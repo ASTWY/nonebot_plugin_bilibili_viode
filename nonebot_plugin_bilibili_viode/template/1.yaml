@@ -124,7 +124,7 @@ up_face: # 作者头像
   y: 35
   width: 80
   height: 80
-  radius: 270
+  radius: 40
 
 qrcode: # 二维码
   type: "image" # 文本类型，可选值：text, image

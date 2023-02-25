@@ -32,7 +32,7 @@ def _font_wight(font: ImageFont, text: str) -> int:
     """
     计算文本的宽度
     """
-    return sum(font.getsize(c)[0] for c in text)
+    return sum(font.getbbox(c)[0] for c in text)
 
 
 def _font_remove(
@@ -217,7 +217,8 @@ def _render_text(draw, text, config: TextItem):
         # 如果指定了最大行数
         if config.font_max_lines:
             # 如果文本的宽度大于最大宽度乘以最大行数，则先分割文本为多行
-            if _font_wight(font, text) > config.font_max_width:
+            if _font_wight(font, text) > (config.font_max_width *
+                                          (config.font_max_lines - 1)):
                 text = _text_split(text, font, config.font_max_width,
                                    config.font_max_lines)
         # 如果没有指定最大行数，则直接移除文本中的部分字符
@@ -307,6 +308,4 @@ def render_img(video_info: VideoInfo, config: str) -> Image:
             _render_text(draw, video_data.get(k), c)
         else:
             raise ValueError("未知的配置项类型")
-    img_bytes = BytesIO()
-    canvas.save(img_bytes, "png")
-    return img_bytes.getvalue()
+    return canvas

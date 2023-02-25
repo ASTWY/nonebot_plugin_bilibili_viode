@@ -1,4 +1,4 @@
-from pathlib import Path
+from io import BytesIO
 from typing import Union
 
 from nonebot import on_message
@@ -24,10 +24,11 @@ async def _(event: Union[MessageEvent, GuildMessageEvent]):
         video_info = await VideoInfo.get(bvid=video_id)
     elif video_id.startswith("av"):
         video_info = await VideoInfo.get(aid=video_id[2:])
-    template_dir = Path(
-        __file__).parent / "template" / config.bilibili_template
-    img = render_img(video_info, template_dir)
+    img = render_img(video_info, config.bilibili_template)
     if img:
-        msg = MessageSegment.image(img) + MessageSegment.text(
-            "\n点击前往:" + video_info.share_url)
+        img_bytes = BytesIO()
+        img.save(img_bytes, format="PNG")
+        msg = MessageSegment.image(
+            img_bytes.getvalue()) + MessageSegment.text("\n点击前往:" +
+                                                        video_info.share_url)
         await share_sort_url.finish(msg)
