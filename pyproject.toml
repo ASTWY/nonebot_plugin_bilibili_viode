@@ -22,11 +22,6 @@ yapf = "^0.32.0"
 flake8 = "^6.0.0"
 pyside6 = "^6.4.2"
 
-[[tool.poetry.source]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true
-secondary = false
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
