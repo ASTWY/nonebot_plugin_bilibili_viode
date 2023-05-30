@@ -30,16 +30,18 @@ async def bilibili_video_id_from_url(uri: str) -> str:
     # 正则匹配哔哩哔哩视频链接, 返回视频ID
     # 传入参数：视频链接
     # 返回值：视频ID
-    pattern = r"http(s)?:\/\/?(www\.)?(bilibili\.com|b23\.tv)\/(video\/)?(av[0-9]*|BV[A-Za-z0-9]*|[A-Za-z0-9]*)"
-    match = re.match(pattern, uri)
-    if match:
-        if match.group(3) == "b23.tv":
+    pattern = re.compile(
+        r"http(s)?:\/\/?(www\.)?(bilibili\.com|b23\.tv)\/(video\/)?(av[0-9]*|BV[A-Za-z0-9]*|[A-Za-z0-9]*)"
+    )
+    matches = pattern.finditer(uri)
+    if matches:
+        urlMatch = matches.__next__()
+        if urlMatch.group(3) == "b23.tv":
             async with AsyncClient() as client:
-                resp = await client.get(uri)
+                resp = await client.get(urlMatch.group())
                 if resp.status_code == 302:
-                    return await bilibili_video_id_from_url(
-                        resp.headers["Location"])
-        return match.group(5)
+                    return await bilibili_video_id_from_url(resp.headers["Location"])
+        return urlMatch.group(5)
     return None
 
 
@@ -47,7 +49,9 @@ def bilibili_video_id_validate(video_id: str) -> str:
     # 正则校验哔哩哔哩视频ID,返回视频id
     # 传入参数：视频ID
     # 返回值：视频id
-    regex = r"(av[0-9]*)|(BV1[A-Za-z0-9]{2}4[A-Za-z0-9]{1}1[A-Za-z0-9]{1}7[A-Za-z0-9]{2})"
+    regex = (
+        r"(av[0-9]*)|(BV1[A-Za-z0-9]{2}4[A-Za-z0-9]{1}1[A-Za-z0-9]{1}7[A-Za-z0-9]{2})"
+    )
     match = re.match(regex, video_id)
     if match:
         return match.group(0)
@@ -69,9 +73,9 @@ async def get_share_sort_url(av_id: str):
     }
     async with AsyncClient() as client:
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        resp = await client.post(url="http://api.biliapi.net/x/share/click",
-                                 headers=headers,
-                                 data=body)
+        resp = await client.post(
+            url="http://api.biliapi.net/x/share/click", headers=headers, data=body
+        )
         if resp.status_code == 200:
             data = resp.json()
             if data["code"] == 0:

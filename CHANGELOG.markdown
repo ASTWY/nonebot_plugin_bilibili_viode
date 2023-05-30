@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.1] - 2023-05-31
+
+- 修复了一个消息匹配 Bug [#6](/issues/6)
+
 ## [1.0.0] - 2023-02-23
 
 - <font color='red'>删除</font>了 `bilibili_poster` 配置项
