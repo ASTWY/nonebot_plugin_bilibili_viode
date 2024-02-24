@@ -34,8 +34,8 @@ async def bilibili_video_id_from_url(uri: str) -> str:
         r"http(s)?:\/\/?(www\.)?(bilibili\.com|b23\.tv)\/(video\/)?(av[0-9]*|BV[A-Za-z0-9]*|[A-Za-z0-9]*)"
     )
     matches = pattern.finditer(uri)
-    if matches:
-        urlMatch = matches.__next__()
+    for match in matches:
+        urlMatch = match
         if urlMatch.group(3) == "b23.tv":
             async with AsyncClient() as client:
                 resp = await client.get(urlMatch.group())
@@ -43,6 +43,7 @@ async def bilibili_video_id_from_url(uri: str) -> str:
                     return await bilibili_video_id_from_url(resp.headers["Location"])
         return urlMatch.group(5)
     return None
+
 
 
 def bilibili_video_id_validate(video_id: str) -> str:
